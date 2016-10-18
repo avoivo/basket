@@ -61,7 +61,9 @@ export class BasketService {
 
     console.log("JSON format :");
     console.log(JSON.stringify(forSave));
-
+    console.log("XML format :");
+    console.log("<ORDER>" +forSave.map((_) => '<ITEM code="' + _.code + '" quantity="' + _.quantity + '"></ITEM>').join('') + "</ORDER>");
+     
   }
 
 
