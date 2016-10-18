@@ -1,0 +1,25 @@
+<table>
+	<thead>
+		<tr>
+			<th>Code</th>
+			<th>Description</th>
+			<th>Quantity</th>
+			<th>Item Price</th>
+			<th>Total Price</th>
+			<th></th>
+			<th></th>
+		</tr>
+
+	</thead>
+	<tbody>
+		<tr *ngFor="let line of data">
+			<td>{{line.productCode}}</td>
+			<td>{{line.description}}</td>
+			<td>{{line.quantity}}</td>
+			<td>{{line.itemPrice}}</td>
+			<td>{{line.totalPrice}}</td>
+			<td><button (click)="removeOne(line)">remove one</button></td>
+			<td><button (click)="removeAll(line)">remove all</button></td>
+		</tr>
+	</tbody>
+</table>
