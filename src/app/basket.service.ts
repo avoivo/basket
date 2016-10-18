@@ -10,14 +10,14 @@ const localStorageKey = "eworx.basket";
 @Injectable()
 export class BasketService {
   private data: { [id: string]: IOrderLine; }
-  private sub: BehaviorSubject<Array<IOrderLine>>;
+  private sub: BehaviorSubject<IBasket>;
 
   constructor(private localStorage: CoolLocalStorage) {
-    this.sub = new BehaviorSubject([]);
+    this.sub = new BehaviorSubject({lines: [], total: 0, discount: 0});
     this.data = this.localStorage.getObject(localStorageKey) || {};
     this.notify();
   }
-  getBasket(): Observable<Array<IOrderLine>> {
+  getBasket(): Observable<IBasket> {
     return this.sub.asObservable();
   }
 
@@ -46,6 +46,10 @@ export class BasketService {
     }
   }
 
+  buy(){
+    console.log('buy');
+  }
+
   
   private saveState() {
     this.localStorage.setObject(localStorageKey, this.data);
@@ -54,6 +58,8 @@ export class BasketService {
   private notify() {
 
     let basket: Array<IOrderLine> = new Array<IOrderLine>();
+    let total: number = 0;
+    let discount: number = 0;
 
     for (let key in this.data) {
       let line = this.data[key];
@@ -64,9 +70,17 @@ export class BasketService {
         itemPrice: line.itemPrice,
         totalPrice: line.totalPrice
       });
+      total += line.totalPrice;
+    }
+
+
+    total = +total.toFixed(2);
+
+    if(total > 100){
+      discount = +(total * .1).toFixed(2);
     }
   
-    this.sub.next(basket);
+    this.sub.next({lines: basket, total: total, discount: discount});
   }
 }
 

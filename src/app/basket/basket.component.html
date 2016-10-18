@@ -12,7 +12,7 @@
 
 	</thead>
 	<tbody>
-		<tr *ngFor="let line of data">
+		<tr *ngFor="let line of data.lines">
 			<td>{{line.productCode}}</td>
 			<td>{{line.description}}</td>
 			<td>{{line.quantity}}</td>
@@ -23,3 +23,12 @@
 		</tr>
 	</tbody>
 </table>
+<div>
+	<span>Total : </span>{{data.total}}
+</div>
+
+<div>
+	<span>Discount : </span>{{data.discount}}
+</div>
+
+<button (click)="buy()">Buy</button>

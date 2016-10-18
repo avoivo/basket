@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { BasketService, IOrderLine } from '../basket.service';
+import { BasketService, IOrderLine, IBasket } from '../basket.service';
 
 @Component({
   selector: 'app-basket',
@@ -8,7 +8,7 @@ import { BasketService, IOrderLine } from '../basket.service';
 })
 export class BasketComponent implements OnInit {
 
-  data: Array<IOrderLine>;
+  data: IBasket;
 
   constructor(private basketService: BasketService) { }
 
@@ -21,6 +21,10 @@ export class BasketComponent implements OnInit {
   }
   removeAll(line: IOrderLine){
     this.basketService.removeProduct(line.productCode, true);
+  }
+
+  buy(){
+    this.basketService.buy();
   }
 
 }
