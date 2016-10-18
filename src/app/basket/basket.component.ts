@@ -16,9 +16,14 @@ export class BasketComponent implements OnInit {
     this.basketService.getBasket().subscribe((_) => this.data = _);
   }
 
+  addOne(line: IOrderLine){
+    this.basketService.addProduct(line.productCode);
+  }
+
   removeOne(line: IOrderLine){
     this.basketService.removeProduct(line.productCode);
   }
+
   removeAll(line: IOrderLine){
     this.basketService.removeProduct(line.productCode, true);
   }

@@ -8,6 +8,7 @@
 			<th>Total Price</th>
 			<th></th>
 			<th></th>
+			<th></th>
 		</tr>
 
 	</thead>
@@ -18,6 +19,7 @@
 			<td>{{line.quantity}}</td>
 			<td>{{line.itemPrice}}</td>
 			<td>{{line.totalPrice}}</td>
+			<td><button (click)="addOne(line)">add one</button></td>
 			<td><button (click)="removeOne(line)">remove one</button></td>
 			<td><button (click)="removeAll(line)">remove all</button></td>
 		</tr>

@@ -20,7 +20,7 @@ export class ProductsComponent implements OnInit {
   }
 
   addProductToBasket(product: IProduct) {
-    this.basketService.addProduct(product);
+    this.basketService.addProduct(product.code);
   }
 
 }

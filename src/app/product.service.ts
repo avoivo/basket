@@ -41,9 +41,20 @@ export class ProductService {
     this.products.push({ "code": "30", "description": "VP-HEME One", "price": 4.16 });
   }
 
-  getProducts(): Observable<Array<IProduct>>{
+  getProducts(): Observable<Array<IProduct>> {
     return Observable.create((observer: Observer<Array<IProduct>>) => {
       observer.next(this.products);
+      observer.complete();
+    });
+  }
+
+  getProduct(id: string): Observable<IProduct> {
+    return Observable.create((observer: Observer<IProduct>) => {
+      let product: IProduct = this.products.find((_) => _.code == id);
+
+      if(product)
+        observer.next(product);
+        
       observer.complete();
     });
   }
