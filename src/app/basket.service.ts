@@ -13,7 +13,7 @@ export class BasketService {
   private sub: BehaviorSubject<IBasket>;
 
   constructor(private localStorage: CoolLocalStorage) {
-    this.sub = new BehaviorSubject({lines: [], total: 0, discount: 0});
+    this.sub = new BehaviorSubject({ lines: [], total: 0, discount: 0 });
     this.data = this.localStorage.getObject(localStorageKey) || {};
     this.notify();
   }
@@ -46,11 +46,25 @@ export class BasketService {
     }
   }
 
-  buy(){
-    console.log('buy');
+  buy() {
+
+    let forSave: Array<IBuyLine> = [];
+
+
+    for (let key in this.data) {
+      let line = this.data[key];
+      forSave.push({
+        code: line.productCode,
+        quantity: line.quantity
+      });
+    }
+
+    console.log("JSON format :");
+    console.log(JSON.stringify(forSave));
+
   }
 
-  
+
   private saveState() {
     this.localStorage.setObject(localStorageKey, this.data);
   }
@@ -76,15 +90,15 @@ export class BasketService {
 
     total = +total.toFixed(2);
 
-    if(total > 100){
+    if (total > 100) {
       discount = +(total * .1).toFixed(2);
     }
-  
-    this.sub.next({lines: basket, total: total, discount: discount});
+
+    this.sub.next({ lines: basket, total: total, discount: discount });
   }
 }
 
-export interface IBasket{
+export interface IBasket {
   lines: Array<IOrderLine>;
   total: number;
   discount: number;
@@ -96,4 +110,9 @@ export interface IOrderLine {
   quantity: number;
   itemPrice: number;
   totalPrice: number;
+}
+
+interface IBuyLine {
+  code: string;
+  quantity: number;
 }
