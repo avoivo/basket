@@ -25,7 +25,7 @@ export class BasketService {
   addProduct(productCode: string) {
     this.productService.getProduct(productCode).subscribe((product) => {
 
-      let line: IOrderLine = this.data[product.code] = this.data[product.code] || { productCode: product.code, description: product.description, quantity: 0, itemPrice: product.price, totalPrice: 0 };
+      let line: IOrderLine = this.data[product.code] = this.data[product.code] || { productCode: product.code, description: product.description, quantity: 0, itemPrice: product.price, totalPrice: 0, discount: 0 };
       line.quantity++;
       line.totalPrice = +(line.quantity * line.itemPrice).toFixed(2);
       this.saveState();
@@ -65,10 +65,28 @@ export class BasketService {
       });
     }
 
-    console.log("JSON format :");
+    console.log("JSON format if backend recalculates discount :");
     console.log(JSON.stringify(forSave));
-    console.log("XML format :");
+    console.log("XML format  if backend recalculates discount :");
     console.log("<ORDER>" + forSave.map((_) => '<ITEM code="' + _.code + '" quantity="' + _.quantity + '"></ITEM>').join('') + "</ORDER>");
+
+    let forSaveWithNoRecalculate: Array<IBuyLineNoRecalculate> = [];
+
+
+    for (let key in this.data) {
+      let line = this.data[key];
+      forSaveWithNoRecalculate.push({
+        code: line.productCode,
+        quantity: line.quantity,
+        totalPrice: line.totalPrice,
+        discount: line.discount
+      });
+    }
+
+    console.log("JSON format if backend does not recalculate discount :");
+    console.log(JSON.stringify(forSaveWithNoRecalculate));
+    console.log("XML format  if backend does not recalculate discount :");
+    console.log("<ORDER>" + forSaveWithNoRecalculate.map((_) => '<ITEM code="' + _.code + '" quantity="' + _.quantity + '" total-price="' + _.totalPrice + '" discount="' + _.discount + '"></ITEM>').join('') + "</ORDER>");
 
   }
 
@@ -79,9 +97,32 @@ export class BasketService {
 
   private notify() {
 
-    let basket: Array<IOrderLine> = new Array<IOrderLine>();
-    let total: number = 0;
+
+
+    // apply discount
+    let maxLine: IOrderLine;
     let discount: number = 0;
+    for (let key in this.data) {
+      let line = this.data[key];
+
+      if (this.totalPrice > 100) {
+        line.discount = +(line.totalPrice * .1).toFixed(2);
+        discount += line.discount;
+      }
+      else
+        line.discount = 0;
+
+      if (maxLine == null || maxLine.totalPrice < line.totalPrice)
+        maxLine = line;
+    }
+
+
+    if (maxLine) {
+      let diff: number = +(this.totalDiscount - discount).toFixed(2);
+      maxLine.discount = +(maxLine.discount + diff).toFixed(2);
+    }
+
+    let basket: Array<IOrderLine> = new Array<IOrderLine>();
 
     for (let key in this.data) {
       let line = this.data[key];
@@ -90,19 +131,27 @@ export class BasketService {
         description: line.description,
         quantity: line.quantity,
         itemPrice: line.itemPrice,
-        totalPrice: line.totalPrice
+        totalPrice: line.totalPrice,
+        discount: line.discount
       });
-      total += line.totalPrice;
+
     }
 
+    this.sub.next({ lines: basket, total: this.totalPrice, discount: this.totalDiscount });
+  }
 
-    total = +total.toFixed(2);
+  get totalPrice(): number {
+    let totalPrice: number = 0;
 
-    if (total > 100) {
-      discount = +(total * .1).toFixed(2);
+    for (let key in this.data) {
+      totalPrice += this.data[key].totalPrice;
     }
+    return +totalPrice.toFixed(2);
 
-    this.sub.next({ lines: basket, total: total, discount: discount });
+  }
+
+  get totalDiscount(): number {
+    return this.totalPrice > 100 ? +(this.totalPrice * .1).toFixed(2) : 0;
   }
 }
 
@@ -117,10 +166,18 @@ export interface IOrderLine {
   description: string;
   quantity: number;
   itemPrice: number;
+  discount: number;
   totalPrice: number;
 }
 
 interface IBuyLine {
   code: string;
   quantity: number;
+}
+
+interface IBuyLineNoRecalculate {
+  code: string;
+  quantity: number;
+  totalPrice: number;
+  discount: number;
 }
